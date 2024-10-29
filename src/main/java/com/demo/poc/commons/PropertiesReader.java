@@ -1,10 +1,10 @@
-package com.demo.poc.commons.util;
+package com.demo.poc.commons;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public class PropertiesReaderUtil {
+public class PropertiesReader {
 
   private static final String BASE_FILE_PATH = "./src/main/resources/";
   private static final String FILE_NAME = "application.properties";

@@ -1,6 +1,6 @@
 package com.demo.poc.dao;
 
-import com.demo.poc.commons.database.config.MySQLConnection;
+import com.demo.poc.commons.MySQLConnection;
 import com.demo.poc.dto.EmployeeDTO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

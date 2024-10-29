@@ -1,6 +1,5 @@
-package com.demo.poc.commons.database.config;
+package com.demo.poc.commons;
 
-import com.demo.poc.commons.util.PropertiesReaderUtil;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
@@ -16,10 +15,10 @@ public class MySQLConnection {
       if (instance == null) {
         Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
-        String driver = PropertiesReaderUtil.getProperty("database.driver");
-        String url = PropertiesReaderUtil.getProperty("database.url");
-        String password = PropertiesReaderUtil.getProperty("database.password");
-        String user = PropertiesReaderUtil.getProperty("database.user");
+        String driver = PropertiesReader.getProperty("database.driver");
+        String url = PropertiesReader.getProperty("database.url");
+        String password = PropertiesReader.getProperty("database.password");
+        String user = PropertiesReader.getProperty("database.user");
 
         Class.forName(driver);
         instance = DriverManager.getConnection(url, user, password);
