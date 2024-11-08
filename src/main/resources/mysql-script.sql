@@ -1,8 +1,8 @@
-CREATE USER 'java7_user'@'%' IDENTIFIED BY 'qwerty';
-GRANT ALL PRIVILEGES ON *.* TO 'java7_user'@'%' WITH GRANT OPTION;
+CREATE USER 'poc_user'@'%' IDENTIFIED BY 'qwerty';
+GRANT ALL PRIVILEGES ON *.* TO 'poc_user'@'%' WITH GRANT OPTION;
 CREATE schema java7db;
 
-USE java7db;
+USE poc_db;
 
 CREATE TABLE IF NOT EXISTS departments (
     code bigint auto_increment,

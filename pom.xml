@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.demo.poc</groupId>
-    <artifactId>java7-database-access-v1</artifactId>
+    <artifactId>poc-java-jdbc</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
