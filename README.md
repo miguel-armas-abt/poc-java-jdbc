@@ -1,4 +1,10 @@
-# ACCESO A BASE DE DATOS CON JAVA 7 (JDBC)
+# ACCESO A BASE DE DATOS CON JDBC
+
+Este proyecto incluye un CRUD realizado con `jdbc` y aplica los siguientes patrones de diseño:
+
+- DTO
+- Singleton
+- DAO
 
 ## Diagrama de base de datos
 ![Diagrama_BD](images/diagram-database.jpg)
