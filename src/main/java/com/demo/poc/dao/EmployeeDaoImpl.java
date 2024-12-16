@@ -1,7 +1,7 @@
 package com.demo.poc.dao;
 
 import com.demo.poc.commons.MySQLConnection;
-import com.demo.poc.dto.EmployeeDTO;
+import com.demo.poc.entity.EmployeeEntity;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,9 +11,9 @@ import java.util.List;
 /**
  * Patrón de diseño DAO. Útil para realizar consultas a base de datos haciendo uso de instrucciones SQL nativas.
  *
- * connection.setAutoCommit(false): Las transacciones en BD no se confirmarán automáticamente. A continuación, debes confirmar o deshacer explícitamente mediante commit o rollback, respectivamente
- * connection.commit(): Confirmamos la transacción al finalizar la operación exitosamente
- * connection.rollback(): Deshacemos la transacción en caso de excepción
+ * connection.setAutoCommit(false): Establece que las transacciones no se confirmarán automáticamente, con lo cual se deben confirmar o deshacer explícitamente mediante commit o rollback.
+ * connection.commit(): Establece que la transacción finalizó exitosamente.
+ * connection.rollback(): Establece que la transacción falló y se debe reestablecer.
  */
 public class EmployeeDaoImpl implements EmployeeDao {
 
@@ -22,22 +22,22 @@ public class EmployeeDaoImpl implements EmployeeDao {
   private ResultSet result;
 
   @Override
-  public List<EmployeeDTO> findAll() {
+  public List<EmployeeEntity> findAll() {
     try {
       connection = MySQLConnection.getConnection();
       connection.setAutoCommit(false);
       statement = connection.prepareStatement("SELECT code, name, contract_date, department_code FROM employees;");
       result = statement.executeQuery();
 
-      List<EmployeeDTO> employeeList = new ArrayList<>();
+      List<EmployeeEntity> employeeList = new ArrayList<>();
       while (result.next()) {
-        EmployeeDTO employeeDto = new EmployeeDTO();
-        employeeDto.setCode(result.getInt("code"));
-        employeeDto.setName(result.getString("name"));
-        employeeDto.setContractDate(result.getDate("contract_date"));
-        employeeDto.setDepartmentCode(result.getInt("department_code"));
+        EmployeeEntity employeeEntity = new EmployeeEntity();
+        employeeEntity.setCode(result.getInt("code"));
+        employeeEntity.setName(result.getString("name"));
+        employeeEntity.setContractDate(result.getDate("contract_date"));
+        employeeEntity.setDepartmentCode(result.getInt("department_code"));
 
-        employeeList.add(employeeDto);
+        employeeList.add(employeeEntity);
       }
       connection.commit();
       return employeeList;
@@ -51,7 +51,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
   }
 
   @Override
-  public EmployeeDTO findByCode(int code) {
+  public EmployeeEntity findByCode(int code) {
     try {
       connection = MySQLConnection.getConnection();
       connection.setAutoCommit(false);
@@ -59,7 +59,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
       statement.setInt(1, code);
       result = statement.executeQuery();
 
-      EmployeeDTO employee = new EmployeeDTO();;
+      EmployeeEntity employee = new EmployeeEntity();;
       if (result.next()) {
         employee.setCode(result.getInt("code"));
         employee.setName(result.getString("name"));
@@ -78,7 +78,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
   }
 
   @Override
-  public void save(EmployeeDTO employee) {
+  public void save(EmployeeEntity employee) {
     try {
       connection = MySQLConnection.getConnection();
       connection.setAutoCommit(false);
