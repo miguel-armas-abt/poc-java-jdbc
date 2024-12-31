@@ -2,7 +2,7 @@ package com.demo.poc;
 
 import com.demo.poc.dao.EmployeeDao;
 import com.demo.poc.dao.EmployeeDaoImpl;
-import com.demo.poc.dto.EmployeeDTO;
+import com.demo.poc.entity.EmployeeEntity;
 import java.sql.Date;
 import java.sql.SQLException;
 
@@ -18,13 +18,13 @@ public class Application {
     employeeDao.findAll().forEach(System.out::println);
 
     System.out.println("\nSAVE");
-    EmployeeDTO employeeDto = new EmployeeDTO();
-    employeeDto.setName("Miguel");
-    employeeDto.setDocumentIdentification(76517368);
-    employeeDto.setContractDate(new Date(System.currentTimeMillis()));
-    employeeDto.setContractType("planilla");
-    employeeDto.setDepartmentCode(1);
-    employeeDao.save(employeeDto);
+    EmployeeEntity employeeEntity = new EmployeeEntity();
+    employeeEntity.setName("Miguel");
+    employeeEntity.setDocumentIdentification(76517368);
+    employeeEntity.setContractDate(new Date(System.currentTimeMillis()));
+    employeeEntity.setContractType("planilla");
+    employeeEntity.setDepartmentCode(1);
+    employeeDao.save(employeeEntity);
 
     System.out.println("\nFIND ALL");
     employeeDao.findAll().forEach(System.out::println);

@@ -1,10 +1,9 @@
 # ACCESO A BASE DE DATOS CON JDBC
 
-Este proyecto incluye un CRUD realizado con `jdbc` y aplica los siguientes patrones de diseño:
+Este proyecto incluye un CRUD integrado con una base de datos relacional.
 
-- DTO
-- Singleton
-- DAO
+## ⚙️Tecnologías
+- JDBC
 
 ## Diagrama de base de datos
 ![Diagrama_BD](images/diagram-database.jpg)
