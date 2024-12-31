@@ -1,6 +1,6 @@
 CREATE USER 'poc_user'@'%' IDENTIFIED BY 'qwerty';
 GRANT ALL PRIVILEGES ON *.* TO 'poc_user'@'%' WITH GRANT OPTION;
-CREATE schema java7db;
+CREATE schema poc_db;
 
 USE poc_db;
 
