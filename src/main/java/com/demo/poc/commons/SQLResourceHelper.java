@@ -24,6 +24,15 @@ public class SQLResourceHelper {
     closeResource(result);
   }
 
+  public static void closeResource(Connection connection) {
+    try {
+      if (connection != null)
+        connection.close();
+    } catch (SQLException exception) {
+      throw new RuntimeException("Error to close connection resource: " + exception.getMessage());
+    }
+  }
+
   public static void closeResource(PreparedStatement statement) {
     try {
       if (statement != null)

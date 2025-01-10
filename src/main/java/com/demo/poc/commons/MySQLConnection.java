@@ -1,5 +1,7 @@
 package com.demo.poc.commons;
 
+import static com.demo.poc.commons.SQLResourceHelper.closeResource;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -35,12 +37,7 @@ public class MySQLConnection {
    */
   static class ShutdownHook extends Thread {
     public void run() {
-      try {
-        Connection connection = MySQLConnection.getConnection();
-        connection.close();
-      } catch (SQLException exception) {
-        throw new RuntimeException("Could not close the connection: " + exception.getMessage(), exception);
-      }
+      closeResource(MySQLConnection.getConnection());
     }
   }
 
