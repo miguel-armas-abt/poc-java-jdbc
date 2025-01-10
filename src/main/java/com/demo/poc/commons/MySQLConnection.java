@@ -9,11 +9,11 @@ import java.sql.SQLException;
  */
 public class MySQLConnection {
 
-  private static Connection instance = null;
+  private static Connection connection = null;
 
   public static Connection getConnection() {
     try {
-      if (instance == null) {
+      if (connection == null) {
         Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
         String driver = PropertiesReader.getProperty("database.driver");
@@ -22,9 +22,9 @@ public class MySQLConnection {
         String user = PropertiesReader.getProperty("database.user");
 
         Class.forName(driver);
-        instance = DriverManager.getConnection(url, user, password);
+        connection = DriverManager.getConnection(url, user, password);
       }
-      return instance;
+      return connection;
     } catch (SQLException | ClassNotFoundException exception) {
       throw new RuntimeException("Connection could not be established: " + exception.getMessage(), exception);
     }
