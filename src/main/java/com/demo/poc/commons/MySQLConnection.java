@@ -2,9 +2,10 @@ package com.demo.poc.commons;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
 /**
- * Patrón de diseño Singleton. Útil para instanciar una única conexión a base de datos.
+ * Patrón de diseño Singleton, instancia una única conexión a base de datos.
  */
 public class MySQLConnection {
 
@@ -24,23 +25,21 @@ public class MySQLConnection {
         instance = DriverManager.getConnection(url, user, password);
       }
       return instance;
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      throw new RuntimeException();
+    } catch (SQLException | ClassNotFoundException exception) {
+      throw new RuntimeException("Connection could not be established: " + exception.getMessage(), exception);
     }
   }
 
   /**
-   * En caso de alguna interrupción el método run se ejecutará de todos modos.
+   * En caso de alguna interrupción inesperada el método run se ejecutará para liberar recursos asociados a la conexión.
    */
   static class ShutdownHook extends Thread {
     public void run() {
       try {
         Connection connection = MySQLConnection.getConnection();
         connection.close();
-      } catch (Exception exception) {
-        exception.printStackTrace();
-        throw new RuntimeException();
+      } catch (SQLException exception) {
+        throw new RuntimeException("Could not close the connection: " + exception.getMessage(), exception);
       }
     }
   }

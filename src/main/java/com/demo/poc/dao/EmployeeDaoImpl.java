@@ -1,87 +1,36 @@
 package com.demo.poc.dao;
 
-import com.demo.poc.commons.MySQLConnection;
-import com.demo.poc.entity.EmployeeEntity;
+import static com.demo.poc.commons.SQLResourceHelper.closeResource;
+import static com.demo.poc.commons.SQLResourceHelper.closeResources;
+import static com.demo.poc.commons.SQLResourceHelper.rollback;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import com.demo.poc.commons.MySQLConnection;
+import com.demo.poc.entity.EmployeeEntity;
+import com.demo.poc.mapper.EmployeeMapper;
 
 /**
- * Patrón de diseño DAO. Útil para realizar consultas a base de datos haciendo uso de instrucciones SQL nativas.
+ * Patrón de diseño DAO. Accede a la base de datos utilizando instrucciones SQL nativas.
  *
- * connection.setAutoCommit(false): Establece que las transacciones no se confirmarán automáticamente, con lo cual se deben confirmar o deshacer explícitamente mediante commit o rollback.
  * connection.commit(): Establece que la transacción finalizó exitosamente.
  * connection.rollback(): Establece que la transacción falló y se debe reestablecer.
+ * connection.setAutoCommit(false): Establece que las transacciones no se confirmarán automáticamente. Se deben confirmar o deshacer explícitamente mediante commit o rollback.
  */
 public class EmployeeDaoImpl implements EmployeeDao {
 
-  private Connection connection = null;
-  private PreparedStatement statement = null;
-  private ResultSet result;
-
-  @Override
-  public List<EmployeeEntity> findAll() {
-    try {
-      connection = MySQLConnection.getConnection();
-      connection.setAutoCommit(false);
-      statement = connection.prepareStatement("SELECT code, name, contract_date, department_code FROM employees;");
-      result = statement.executeQuery();
-
-      List<EmployeeEntity> employeeList = new ArrayList<>();
-      while (result.next()) {
-        EmployeeEntity employeeEntity = new EmployeeEntity();
-        employeeEntity.setCode(result.getInt("code"));
-        employeeEntity.setName(result.getString("name"));
-        employeeEntity.setContractDate(result.getDate("contract_date"));
-        employeeEntity.setDepartmentCode(result.getInt("department_code"));
-
-        employeeList.add(employeeEntity);
-      }
-      connection.commit();
-      return employeeList;
-
-    } catch (Exception exception) {
-      rollback();
-      throw new RuntimeException("error to find all employees: " + exception.getMessage());
-    } finally {
-      closeResources();
-    }
-  }
-
-  @Override
-  public EmployeeEntity findByCode(int code) {
-    try {
-      connection = MySQLConnection.getConnection();
-      connection.setAutoCommit(false);
-      statement = connection.prepareStatement("SELECT code, name, contract_date, department_code FROM employees WHERE code = ?");
-      statement.setInt(1, code);
-      result = statement.executeQuery();
-
-      EmployeeEntity employee = new EmployeeEntity();;
-      if (result.next()) {
-        employee.setCode(result.getInt("code"));
-        employee.setName(result.getString("name"));
-        employee.setContractDate(result.getDate("contract_date"));
-        employee.setDepartmentCode(result.getInt("department_code"));
-      }
-      connection.commit();
-      return employee;
-
-    } catch (Exception exception) {
-      rollback();
-      throw new RuntimeException("error to find employee by code: " + exception.getMessage());
-    } finally {
-      closeResources();
-    }
-  }
-
   @Override
   public void save(EmployeeEntity employee) {
+    Connection connection = null;
+    PreparedStatement statement = null;
     try {
       connection = MySQLConnection.getConnection();
       connection.setAutoCommit(false);
+
       statement = connection.prepareStatement("INSERT INTO employees (name, document_identification, contract_date, contract_type, department_code) VALUES (?, ?, ?, ?, ?);");
       statement.setString(1, employee.getName());
       statement.setInt(2, employee.getDocumentIdentification());
@@ -90,20 +39,23 @@ public class EmployeeDaoImpl implements EmployeeDao {
       statement.setInt(5, employee.getDepartmentCode());
 
       int insertedRows = statement.executeUpdate();
-      if (insertedRows == 1) {
-        connection.commit();
-      } else {
-        throw new RuntimeException("error to save employee");
-      }
-    } catch (Exception exception) {
-      rollback();
+
+      if (insertedRows != 1)
+        throw new RuntimeException("Error to save employee");
+
+      connection.commit();
+
+    } catch (SQLException exception) {
+      rollback(connection);
     } finally {
-      closeResources();
+      closeResource(statement);
     }
   }
 
   @Override
   public void deleteByCode(int code) {
+    Connection connection = null;
+    PreparedStatement statement = null;
     try {
       connection = MySQLConnection.getConnection();
       connection.setAutoCommit(false);
@@ -111,38 +63,64 @@ public class EmployeeDaoImpl implements EmployeeDao {
       statement.setInt(1, code);
 
       int deletedRows = statement.executeUpdate();
-      if (deletedRows == 1) {
-        connection.commit();
-      } else {
-        throw new RuntimeException("error to delete employee");
-      }
-    } catch (Exception exception) {
-      rollback();
+
+      if (deletedRows != 1)
+        throw new RuntimeException("Error to delete employee with code " + code);
+
+      connection.commit();
+
+    } catch (SQLException exception) {
+      rollback(connection);
     } finally {
-      closeResources();
+      closeResource(statement);
     }
   }
 
-  private void rollback() {
+  @Override
+  public List<EmployeeEntity> findAll() {
+    PreparedStatement statement = null;
+    ResultSet result = null;
     try {
-      if (connection != null) {
-        connection.rollback();
+      Connection connection = MySQLConnection.getConnection();
+      statement = connection.prepareStatement("SELECT code, name, contract_date, department_code FROM employees;");
+      result = statement.executeQuery();
+
+      List<EmployeeEntity> employeeList = new ArrayList<>();
+      while (result.next()) {
+        EmployeeEntity employeeEntity = EmployeeMapper.toEntity(result);
+        employeeList.add(employeeEntity);
       }
-    } catch (Exception exception) {
-      throw new RuntimeException("error to rollback: " + exception.getMessage());
+      return employeeList;
+    } catch (SQLException exception) {
+      throw new RuntimeException("Error to find all employees: " + exception.getMessage(), exception);
+    } finally {
+      closeResources(statement, result);
     }
   }
 
-  private void closeResources() {
+  @Override
+  public EmployeeEntity findByCode(int code) {
+    PreparedStatement statement = null;
+    ResultSet result = null;
     try {
-      if (statement != null) {
-        statement.close();
-      }
-      if (result != null) {
-        result.close();
-      }
-    } catch (Exception exception) {
-      throw new RuntimeException("error to close resources: " + exception.getMessage());
+      Connection connection = MySQLConnection.getConnection();
+      statement = connection.prepareStatement("SELECT code, name, contract_date, department_code FROM employees WHERE code = ?");
+      statement.setInt(1, code);
+      result = statement.executeQuery();
+
+      EmployeeEntity employee = null;
+      if (result.next())
+        employee = EmployeeMapper.toEntity(result);
+
+      if(employee != null)
+        return employee;
+
+      throw new IllegalArgumentException("No such employee with code" + code);
+
+    } catch (SQLException exception) {
+      throw new RuntimeException("Error to find employee by code: " + exception.getMessage(), exception);
+    } finally {
+      closeResources(statement, result);
     }
   }
 }
